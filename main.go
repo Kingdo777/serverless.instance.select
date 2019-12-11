@@ -1,4 +1,4 @@
-package serverless_instance_select
+package main
 
 import (
 	"flag"
