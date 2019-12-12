@@ -51,18 +51,14 @@ func main() {
 
 	deploymentsClient := clientset.AppsV1().Deployments(apiv1.NamespaceDefault)
 	serviceClient := clientset.CoreV1().Services(apiv1.NamespaceDefault)
+	nodesClient := clientset.CoreV1().Nodes()
 
 	deployment := createDeployment(deploymentsClient)
 
 	svc := createService(serviceClient, deployment)
 
-	nodesClient := clientset.CoreV1().Nodes()
-	nodes, _ := nodesClient.Get("minikube", metav1.GetOptions{})
-	nodeAddress := nodes.Status.Addresses[0].Address
-	nodePort := strconv.Itoa(int(svc.Spec.Ports[0].NodePort))
-	url := nodeAddress + ":" + nodePort
-
-	sendRequest(url)
+	latency := sendRequest(getUrl(nodesClient, svc), 10)
+	fmt.Printf("%f", latency)
 
 	updateDeployment(deploymentsClient)
 
@@ -72,10 +68,18 @@ func main() {
 
 }
 
-func sendRequest(url string) (latency float64) {
+func getUrl(nodesClient v12.NodeInterface, svc *apiv1.Service) string {
+	nodes, _ := nodesClient.Get("minikube", metav1.GetOptions{})
+	nodeAddress := nodes.Status.Addresses[0].Address
+	nodeAddress = "http://192.168.99.100" //minikube的问题，nodeport没办法直接访问
+	nodePort := strconv.Itoa(int(svc.Spec.Ports[0].NodePort))
+	url := nodeAddress + ":" + nodePort
+	return url
+}
 
-	fmt.Print(url)
-	return 0
+func sendRequest(url string, concurrency int) float64 {
+	latency := hey(url, concurrency, "10s")
+	return latency
 }
 
 func createService(serviceClient v12.ServiceInterface, deployment *appsv1.Deployment) *apiv1.Service {
@@ -216,32 +220,34 @@ func updateDeployment(deploymentsClient v1.DeploymentInterface) {
 			},
 		}
 		//result.Spec.Template.Spec.Containers[0].Image = "nginx:1.13" // change nginx version
-		deployment, updateErr := deploymentsClient.Update(result)
-		if updateErr == nil {
-			for true {
-				if deployment.Status.AvailableReplicas == *deployment.Spec.Replicas {
-					deployment, _ = deploymentsClient.Get(deployment.Name, metav1.GetOptions{})
-					fmt.Printf("Wait All Pod Ready.\n")
-					time.Sleep(1 * time.Second)
-				} else {
-					for true {
-						if deployment.Status.AvailableReplicas != *deployment.Spec.Replicas {
-							deployment, _ = deploymentsClient.Get(deployment.Name, metav1.GetOptions{})
-							fmt.Printf("Wait All Pod Ready.\n")
-							time.Sleep(1 * time.Second)
-						} else {
-							break
-						}
-					}
-					break
-				}
-			}
-		}
+		_, updateErr := deploymentsClient.Update(result)
+		//if updateErr == nil {
+		//	for true {
+		//		if deployment.Status.AvailableReplicas == *deployment.Spec.Replicas {
+		//			deployment, _ = deploymentsClient.Get(deployment.Name, metav1.GetOptions{})
+		//			fmt.Printf("Wait All Pod Ready.\n")
+		//			time.Sleep(1 * time.Second)
+		//		} else {
+		//			for true {
+		//				if deployment.Status.AvailableReplicas != *deployment.Spec.Replicas {
+		//					deployment, _ = deploymentsClient.Get(deployment.Name, metav1.GetOptions{})
+		//					fmt.Printf("Wait All Pod Ready.\n")
+		//					time.Sleep(1 * time.Second)
+		//				} else {
+		//					break
+		//				}
+		//			}
+		//			break
+		//		}
+		//	}
+		//}
 		return updateErr
 	})
 	if retryErr != nil {
 		panic(fmt.Errorf("update failed: %v", retryErr))
 	}
+	//等待更新结束
+	time.Sleep(30 * time.Second)
 	fmt.Println("Updated deployment...")
 }
 
