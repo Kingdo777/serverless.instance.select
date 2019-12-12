@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"flag"
 	"fmt"
+	"k8s.io/apimachinery/pkg/api/resource"
 	"k8s.io/client-go/kubernetes/typed/apps/v1"
 	v12 "k8s.io/client-go/kubernetes/typed/core/v1"
 	"os"
@@ -14,6 +15,7 @@ import (
 	appsv1 "k8s.io/api/apps/v1"
 	apiv1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
 	"k8s.io/client-go/util/homedir"
@@ -139,6 +141,14 @@ func createDeployment(deploymentsClient v1.DeploymentInterface) *appsv1.Deployme
 									ContainerPort: 8080,
 								},
 							},
+							Resources: apiv1.ResourceRequirements{
+								Limits: apiv1.ResourceList{
+									apiv1.ResourceCPU: *resource.NewMilliQuantity(100, resource.BinarySI),
+								},
+								Requests: apiv1.ResourceList{
+									apiv1.ResourceCPU: *resource.NewQuantity(128, resource.BinarySI),
+								},
+							},
 						},
 					},
 				},
@@ -154,11 +164,14 @@ func createDeployment(deploymentsClient v1.DeploymentInterface) *appsv1.Deployme
 	}
 	fmt.Printf("Created deployment %q.\n", result.GetObjectMeta().GetName())
 
-	if deployment.Status.AvailableReplicas != *deployment.Spec.Replicas {
-		fmt.Printf("Wait All Pod Ready.\n")
-		time.Sleep(1 * time.Second)
+	for true {
+		if deployment.Status.AvailableReplicas != *deployment.Spec.Replicas {
+			fmt.Printf("Wait All Pod Ready.\n")
+			time.Sleep(1 * time.Second)
+		} else {
+			break
+		}
 	}
-
 	return deployment
 }
 
@@ -188,8 +201,19 @@ func updateDeployment(deploymentsClient v1.DeploymentInterface) {
 		}
 
 		result.Spec.Replicas = int32Ptr(1) // reduce replica count
+		//result.Spec.Template.Spec.Containers[0].Resources.Requests().Cpu().Set()
 		//result.Spec.Template.Spec.Containers[0].Image = "nginx:1.13" // change nginx version
-		_, updateErr := deploymentsClient.Update(result)
+		deployment, updateErr := deploymentsClient.Update(result)
+		if updateErr == nil {
+			for true {
+				if deployment.Status.AvailableReplicas != *deployment.Spec.Replicas {
+					fmt.Printf("Wait All Pod Ready.\n")
+					time.Sleep(1 * time.Second)
+				} else {
+					break
+				}
+			}
+		}
 		return updateErr
 	})
 	if retryErr != nil {
