@@ -49,7 +49,7 @@ func hey(url string, conc int, d string) float64 {
 	//conc := c
 	//dur := z
 
-	flag.Duration("z", 0, "")
+	//flag.Duration("z", 0, "")
 	//dur := new(time.Duration)
 	dur, err := time.ParseDuration(d)
 	if err != nil {

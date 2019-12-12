@@ -55,8 +55,8 @@ func main() {
 	deployment := createDeployment(deploymentsClient)
 	svc := createService(serviceClient, deployment)
 
-	latency := sendRequest(getUrl(nodesClient, svc), 10)
-	fmt.Printf("%f", latency)
+	//latency := sendRequest(getUrl(nodesClient, svc), 10)
+	//fmt.Printf("%f", latency)
 
 	for _, vm := range vmList() {
 		updateDeployment(deploymentsClient, vm)
