@@ -5,8 +5,10 @@ import (
 	"flag"
 	"fmt"
 	"k8s.io/client-go/kubernetes/typed/apps/v1"
+	v12 "k8s.io/client-go/kubernetes/typed/core/v1"
 	"os"
 	"path/filepath"
+	"time"
 
 	appsv1 "k8s.io/api/apps/v1"
 	apiv1 "k8s.io/api/core/v1"
@@ -45,18 +47,63 @@ func main() {
 	}
 
 	deploymentsClient := clientset.AppsV1().Deployments(apiv1.NamespaceDefault)
+	serviceClient := clientset.CoreV1().Services(apiv1.NamespaceDefault)
 
-	createDeployment(deploymentsClient)
+	deployment := createDeployment(deploymentsClient)
 
-	updateDeployment(deploymentsClient)
+	svc := createService(serviceClient, deployment)
 
-	listDeployment(deploymentsClient)
+	nodesClient := clientset.CoreV1().Nodes()
+	nodes, _ := nodesClient.Get("minikube", metav1.GetOptions{})
+	nodeAddress := nodes.Status.Addresses[0].Address
+	nodePort := string(svc.Spec.Ports[0].NodePort)
+	url := nodeAddress + ":" + nodePort
+
+	sendRequest(url)
+
+	//updateDeployment(deploymentsClient)
+
+	//listDeployment(deploymentsClient)
 
 	deleteDeployment(deploymentsClient)
 
 }
 
-func createDeployment(deploymentsClient v1.DeploymentInterface) {
+func sendRequest(url string) (latency float64) {
+
+	fmt.Print(url)
+	return 0
+}
+
+func createService(serviceClient v12.ServiceInterface, deployment *appsv1.Deployment) *apiv1.Service {
+	// Create a Service named "my-service" that targets "pod-group":"my-pod-group"
+	port := int32(8080)
+	svc, err := serviceClient.Create(&apiv1.Service{
+		ObjectMeta: metav1.ObjectMeta{
+			Name: "instance-select",
+		},
+		Spec: apiv1.ServiceSpec{
+			Type:     apiv1.ServiceTypeNodePort,
+			Selector: deployment.Labels,
+			Ports: []apiv1.ServicePort{
+				{
+					Port: port,
+					//TargetPort:deployment.Spec.Template.Spec.Containers[0].Ports[0].HostPort,
+				},
+			},
+		},
+	})
+
+	if err != nil {
+		fmt.Println(err)
+		return nil
+	}
+
+	return svc
+
+}
+
+func createDeployment(deploymentsClient v1.DeploymentInterface) *appsv1.Deployment {
 
 	deployment := &appsv1.Deployment{
 		ObjectMeta: metav1.ObjectMeta{
@@ -101,6 +148,13 @@ func createDeployment(deploymentsClient v1.DeploymentInterface) {
 		panic(err)
 	}
 	fmt.Printf("Created deployment %q.\n", result.GetObjectMeta().GetName())
+
+	if deployment.Status.AvailableReplicas != *deployment.Spec.Replicas {
+		fmt.Printf("Wait All Pod Ready.\n")
+		time.Sleep(1 * time.Second)
+	}
+
+	return deployment
 }
 
 func updateDeployment(deploymentsClient v1.DeploymentInterface) {
