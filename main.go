@@ -141,15 +141,15 @@ func createDeployment(deploymentsClient v1.DeploymentInterface) *appsv1.Deployme
 									ContainerPort: 8080,
 								},
 							},
-							ImagePullPolicy: apiv1.PullIfNotPresent,
+							//ImagePullPolicy: apiv1.PullIfNotPresent,
 							Resources: apiv1.ResourceRequirements{
 								Limits: apiv1.ResourceList{
 									apiv1.ResourceCPU:    *resource.NewMilliQuantity(125, resource.BinarySI),
-									apiv1.ResourceMemory: *resource.NewMilliQuantity(128, resource.BinarySI),
+									apiv1.ResourceMemory: *resource.NewQuantity(128, resource.BinarySI),
 								},
 								Requests: apiv1.ResourceList{
 									apiv1.ResourceCPU:    *resource.NewMilliQuantity(125, resource.BinarySI),
-									apiv1.ResourceMemory: *resource.NewMilliQuantity(128, resource.BinarySI),
+									apiv1.ResourceMemory: *resource.NewQuantity(128, resource.BinarySI),
 								},
 							},
 						},
