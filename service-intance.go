@@ -42,7 +42,7 @@ func runToGetData(SLO time.Duration, deploymentsClient v1.DeploymentInterface, u
 		concurrencyIndex := 0
 		for conc = concurrency[concurrencyIndex]; conc <= concurrency[len(concurrency)-1]; {
 			latency = sendRequest(url, conc, runTime)
-			fmt.Printf("request1:conc=%d\n", conc)
+			fmt.Printf("request1:conc=%d and latency=%f\n", conc, latency)
 			if latency < SecondSLO {
 				concurrencyIndex++
 				if concurrencyIndex == len(concurrency) {
@@ -72,14 +72,14 @@ func runToGetData(SLO time.Duration, deploymentsClient v1.DeploymentInterface, u
 			for conc = (start + end) / 2; start < end; conc = (start + end) / 2 {
 				if conc == start {
 					latency = sendRequest(url, end, runTime)
-					fmt.Printf("request2:conc=%d\n", end)
+					fmt.Printf("request2:conc=%d and latency=%f\n", end, latency)
 					if latency < SecondSLO {
 						conc = end
 					}
 					break
 				} else {
 					latency = sendRequest(url, conc, runTime)
-					fmt.Printf("request3:conc=%d\n", conc)
+					fmt.Printf("request3:conc=%d and latency=%f\n", conc, latency)
 					if latency < SecondSLO {
 						start = conc
 					} else {
