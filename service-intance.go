@@ -101,8 +101,43 @@ func runToGetData(SLO time.Duration, deploymentsClient v1.DeploymentInterface, u
 			//TODO
 			//这个地方要比较增加资源后，实例的响应时间时候在减小，如没有减小反而增加，那么已经没有继续测试的必要
 		}
-
 		updateDeployment(deploymentsClient, vmInstanceDefault)
 	}
 	return SI
+}
+
+func compeleteSI(SI ServiceInstance) {
+	makeCostPerformanceTable(SI)
+	makeconcurrencyInstance(SI)
+}
+
+func makeCostPerformanceTable(SI ServiceInstance) {
+	for vmIndex := 0; vmIndex < len(vmConfigList); vmIndex++ {
+		if SI.instanceRunModel[vmIndex].isWorked == false {
+			for concIndex := 0; concIndex < len(concurrency); concIndex++ {
+				CostPerformanceTable[vmIndex][concIndex] = NotBest
+			}
+		} else {
+			maxConc := SI.instanceRunModel[vmIndex].maxConcurrency
+			for concIndex := 0; concIndex < len(concurrency); concIndex++ {
+				CostPerformanceTable[vmIndex][concIndex] = math.Ceil(float64(concurrency[concIndex])/float64(maxConc)) * float64(vmCost()[vmIndex])
+			}
+		}
+	}
+}
+
+func makeconcurrencyInstance(SI ServiceInstance) {
+	for concIndex := 0; concIndex < len(concurrency); concIndex++ {
+		SI.concurrencyInstance[concIndex] = minVMwithConc(concIndex)
+	}
+}
+
+func minVMwithConc(concIndex int) VmInstanceResourceCount {
+	index := 0
+	for vmIndex := 1; vmIndex < len(vmConfigList); vmIndex++ {
+		if CostPerformanceTable[vmIndex][concIndex] < CostPerformanceTable[index][concIndex] {
+			index = vmIndex
+		}
+	}
+	return vmConfigList[index]
 }
