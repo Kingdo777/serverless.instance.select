@@ -204,8 +204,17 @@ func updateDeployment(deploymentsClient v1.DeploymentInterface) {
 			panic(fmt.Errorf("failed to get latest version of Deployment: %v", getErr))
 		}
 
-		result.Spec.Replicas = int32Ptr(1) // reduce replica count
-		//result.Spec.Template.Spec.Containers[0].Resources.Requests().Cpu().Set()
+		//result.Spec.Replicas = int32Ptr(1) // reduce replica count
+		result.Spec.Template.Spec.Containers[0].Resources = apiv1.ResourceRequirements{
+			Limits: apiv1.ResourceList{
+				apiv1.ResourceCPU:    *resource.NewMilliQuantity(250, resource.BinarySI),
+				apiv1.ResourceMemory: *resource.NewQuantity(256*1024*1024, resource.BinarySI),
+			},
+			Requests: apiv1.ResourceList{
+				apiv1.ResourceCPU:    *resource.NewMilliQuantity(250, resource.BinarySI),
+				apiv1.ResourceMemory: *resource.NewQuantity(256*1024*1024, resource.BinarySI),
+			},
+		}
 		//result.Spec.Template.Spec.Containers[0].Image = "nginx:1.13" // change nginx version
 		deployment, updateErr := deploymentsClient.Update(result)
 		if updateErr == nil {
