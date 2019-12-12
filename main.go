@@ -201,7 +201,7 @@ func updateDeployment(deploymentsClient v1.DeploymentInterface, vm VmInstance) {
 			panic(fmt.Errorf("failed to get latest version of Deployment: %v", getErr))
 		}
 
-		result.Spec.Replicas = int32Ptr(1)
+		result.Spec.Replicas = int32Ptr(vm.replicas)
 		result.Spec.Template.Spec.Containers[0].Resources = vm.res
 		//result.Spec.Template.Spec.Containers[0].Image = "nginx:1.13" // change nginx version
 		_, updateErr := deploymentsClient.Update(result)

@@ -6,7 +6,8 @@ import (
 )
 
 type VmInstance struct {
-	res apiv1.ResourceRequirements
+	res      apiv1.ResourceRequirements
+	replicas int32
 }
 
 type VmInstanceResourceCount struct {
@@ -21,6 +22,9 @@ const (
 
 	CpuSizeFraction = 1
 	CpuSizeInteger  = 1 * 1000
+
+	DefaultInstanceReplicasCount = 0
+	TestInstanceReplicasCount    = 1
 )
 
 var (
@@ -46,14 +50,15 @@ var (
 	vmInstanceDefault = VmInstance{
 		res: apiv1.ResourceRequirements{
 			Limits: apiv1.ResourceList{
-				apiv1.ResourceCPU:    *resource.NewMilliQuantity(vmConfigList[0].cpu, resource.BinarySI),
+				apiv1.ResourceCPU:    *resource.NewMilliQuantity(vmConfigList[0].cpu*CpuSizeFraction, resource.BinarySI),
 				apiv1.ResourceMemory: *resource.NewQuantity(vmConfigList[0].mem*MemorySizeMi, resource.BinarySI),
 			},
 			Requests: apiv1.ResourceList{
-				apiv1.ResourceCPU:    *resource.NewMilliQuantity(vmConfigList[0].cpu, resource.BinarySI),
+				apiv1.ResourceCPU:    *resource.NewMilliQuantity(vmConfigList[0].cpu*CpuSizeFraction, resource.BinarySI),
 				apiv1.ResourceMemory: *resource.NewQuantity(vmConfigList[0].mem*MemorySizeMi, resource.BinarySI),
 			},
 		},
+		replicas: DefaultInstanceReplicasCount,
 	}
 
 	vmList = func() [len(vmConfigList)]VmInstance {
@@ -62,14 +67,15 @@ var (
 			vmList[index] = VmInstance{
 				res: apiv1.ResourceRequirements{
 					Limits: apiv1.ResourceList{
-						apiv1.ResourceCPU:    *resource.NewMilliQuantity(vmcl.cpu, resource.BinarySI),
+						apiv1.ResourceCPU:    *resource.NewMilliQuantity(vmcl.cpu*CpuSizeFraction, resource.BinarySI),
 						apiv1.ResourceMemory: *resource.NewQuantity(vmcl.mem*MemorySizeMi, resource.BinarySI),
 					},
 					Requests: apiv1.ResourceList{
-						apiv1.ResourceCPU:    *resource.NewMilliQuantity(vmcl.cpu, resource.BinarySI),
+						apiv1.ResourceCPU:    *resource.NewMilliQuantity(vmcl.cpu*CpuSizeFraction, resource.BinarySI),
 						apiv1.ResourceMemory: *resource.NewQuantity(vmcl.mem*MemorySizeMi, resource.BinarySI),
 					},
 				},
+				replicas: TestInstanceReplicasCount,
 			}
 		}
 		return vmList
