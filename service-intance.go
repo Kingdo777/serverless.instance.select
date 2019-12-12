@@ -39,7 +39,7 @@ func runToGetData(SLO time.Duration, deploymentsClient v1.DeploymentInterface, u
 		var latency float64
 		var conc int
 		concurrencyIndex := 0
-		for conc = concurrency[concurrencyIndex]; conc <= concurrency[len(concurrency)]; {
+		for conc = concurrency[concurrencyIndex]; conc <= concurrency[len(concurrency)-1]; {
 			latency = sendRequest(url, conc, runTime)
 			if latency < SecondSLO {
 				concurrencyIndex++

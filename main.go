@@ -58,12 +58,14 @@ func main() {
 	//latency := sendRequest(getUrl(nodesClient, svc), 10)
 	//fmt.Printf("%f", latency)
 
-	for index, vm := range vmList() {
-		updateDeployment(deploymentsClient, vm)
-		latency := sendRequest(getUrl(nodesClient, svc), 10, 10)
-		fmt.Printf("vm%d(cpu:%dm,mem:%dMi):%f\n", index, vmConfigList[index].cpu, vmConfigList[index].mem, latency)
-		updateDeployment(deploymentsClient, vmInstanceDefault)
-	}
+	runToGetData(500*time.Millisecond, deploymentsClient, getUrl(nodesClient, svc))
+
+	//for index, vm := range vmList() {
+	//	updateDeployment(deploymentsClient, vm)
+	//	latency := sendRequest(getUrl(nodesClient, svc), 10, 10)
+	//	fmt.Printf("vm%d(cpu:%dm,mem:%dMi):%f\n", index, vmConfigList[index].cpu, vmConfigList[index].mem, latency)
+	//	updateDeployment(deploymentsClient, vmInstanceDefault)
+	//}
 
 	//listDeployment(deploymentsClient)
 
