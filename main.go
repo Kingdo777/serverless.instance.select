@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"flag"
 	"fmt"
-	"k8s.io/apimachinery/pkg/api/resource"
 	"k8s.io/client-go/kubernetes/typed/apps/v1"
 	v12 "k8s.io/client-go/kubernetes/typed/core/v1"
 	"os"
@@ -54,13 +53,17 @@ func main() {
 	nodesClient := clientset.CoreV1().Nodes()
 
 	deployment := createDeployment(deploymentsClient)
-
 	svc := createService(serviceClient, deployment)
 
 	latency := sendRequest(getUrl(nodesClient, svc), 10)
 	fmt.Printf("%f", latency)
 
-	updateDeployment(deploymentsClient)
+	for _, vm := range vmList() {
+		updateDeployment(deploymentsClient, vm)
+		latency := sendRequest(getUrl(nodesClient, svc), 10)
+		fmt.Printf("%f", latency)
+		updateDeployment(deploymentsClient, vmInstanceDefault)
+	}
 
 	//listDeployment(deploymentsClient)
 
@@ -121,7 +124,7 @@ func createDeployment(deploymentsClient v1.DeploymentInterface) *appsv1.Deployme
 			Name: "instance-select",
 		},
 		Spec: appsv1.DeploymentSpec{
-			Replicas: int32Ptr(1),
+			Replicas: int32Ptr(0),
 			Selector: &metav1.LabelSelector{
 				MatchLabels: map[string]string{
 					"app": "instance-select",
@@ -146,16 +149,7 @@ func createDeployment(deploymentsClient v1.DeploymentInterface) *appsv1.Deployme
 								},
 							},
 							//ImagePullPolicy: apiv1.PullIfNotPresent,
-							Resources: apiv1.ResourceRequirements{
-								Limits: apiv1.ResourceList{
-									apiv1.ResourceCPU:    *resource.NewMilliQuantity(125, resource.BinarySI),
-									apiv1.ResourceMemory: *resource.NewQuantity(128*1024*1024, resource.BinarySI),
-								},
-								Requests: apiv1.ResourceList{
-									apiv1.ResourceCPU:    *resource.NewMilliQuantity(125, resource.BinarySI),
-									apiv1.ResourceMemory: *resource.NewQuantity(128*1024*1024, resource.BinarySI),
-								},
-							},
+							Resources: vmInstanceDefault.res,
 						},
 					},
 				},
@@ -169,8 +163,6 @@ func createDeployment(deploymentsClient v1.DeploymentInterface) *appsv1.Deployme
 	if err != nil {
 		panic(err)
 	}
-	fmt.Printf("Created deployment %q.\n", result.GetObjectMeta().GetName())
-
 	for true {
 		if result.Status.AvailableReplicas != *result.Spec.Replicas {
 			result, _ = deploymentsClient.Get(result.Name, metav1.GetOptions{})
@@ -180,12 +172,13 @@ func createDeployment(deploymentsClient v1.DeploymentInterface) *appsv1.Deployme
 			break
 		}
 	}
+	fmt.Printf("Created deployment %q.\n", result.GetObjectMeta().GetName())
 	return result
 }
 
-func updateDeployment(deploymentsClient v1.DeploymentInterface) {
+func updateDeployment(deploymentsClient v1.DeploymentInterface, vm VmInstance) {
 	// Update Deployment
-	prompt()
+	//prompt()
 	fmt.Println("Updating deployment...")
 	//    You have two options to Update() this Deployment:
 	//
@@ -208,46 +201,28 @@ func updateDeployment(deploymentsClient v1.DeploymentInterface) {
 			panic(fmt.Errorf("failed to get latest version of Deployment: %v", getErr))
 		}
 
-		//result.Spec.Replicas = int32Ptr(1) // reduce replica count
-		result.Spec.Template.Spec.Containers[0].Resources = apiv1.ResourceRequirements{
-			Limits: apiv1.ResourceList{
-				apiv1.ResourceCPU:    *resource.NewMilliQuantity(250, resource.BinarySI),
-				apiv1.ResourceMemory: *resource.NewQuantity(256*1024*1024, resource.BinarySI),
-			},
-			Requests: apiv1.ResourceList{
-				apiv1.ResourceCPU:    *resource.NewMilliQuantity(250, resource.BinarySI),
-				apiv1.ResourceMemory: *resource.NewQuantity(256*1024*1024, resource.BinarySI),
-			},
-		}
+		result.Spec.Replicas = int32Ptr(1)
+		result.Spec.Template.Spec.Containers[0].Resources = vm.res
 		//result.Spec.Template.Spec.Containers[0].Image = "nginx:1.13" // change nginx version
 		_, updateErr := deploymentsClient.Update(result)
-		//if updateErr == nil {
-		//	for true {
-		//		if deployment.Status.AvailableReplicas == *deployment.Spec.Replicas {
-		//			deployment, _ = deploymentsClient.Get(deployment.Name, metav1.GetOptions{})
-		//			fmt.Printf("Wait All Pod Ready.\n")
-		//			time.Sleep(1 * time.Second)
-		//		} else {
-		//			for true {
-		//				if deployment.Status.AvailableReplicas != *deployment.Spec.Replicas {
-		//					deployment, _ = deploymentsClient.Get(deployment.Name, metav1.GetOptions{})
-		//					fmt.Printf("Wait All Pod Ready.\n")
-		//					time.Sleep(1 * time.Second)
-		//				} else {
-		//					break
-		//				}
-		//			}
-		//			break
-		//		}
-		//	}
-		//}
+		if updateErr == nil {
+			for true {
+				if result.Status.AvailableReplicas != *result.Spec.Replicas {
+					result, _ = deploymentsClient.Get(result.Name, metav1.GetOptions{})
+					fmt.Printf("Wait All Pod Ready.\n")
+					time.Sleep(1 * time.Second)
+				} else {
+					break
+				}
+			}
+		}
 		return updateErr
 	})
 	if retryErr != nil {
 		panic(fmt.Errorf("update failed: %v", retryErr))
 	}
 	//等待更新结束
-	time.Sleep(30 * time.Second)
+	//time.Sleep(30 * time.Second)
 	fmt.Println("Updated deployment...")
 }
 
