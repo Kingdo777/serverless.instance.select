@@ -58,7 +58,7 @@ func main() {
 	//latency := sendRequest(getUrl(nodesClient, svc), 10)
 	//fmt.Printf("%f", latency)
 
-	runToGetData(500, deploymentsClient, getUrl(nodesClient, svc))
+	runToGetData(20, deploymentsClient, getUrl(nodesClient, svc))
 
 	//for index, vm := range vmList() {
 	//	updateDeployment(deploymentsClient, vm)
