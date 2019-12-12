@@ -58,10 +58,10 @@ func main() {
 	//latency := sendRequest(getUrl(nodesClient, svc), 10)
 	//fmt.Printf("%f", latency)
 
-	for _, vm := range vmList() {
+	for index, vm := range vmList() {
 		updateDeployment(deploymentsClient, vm)
 		latency := sendRequest(getUrl(nodesClient, svc), 10)
-		fmt.Printf("%f", latency)
+		fmt.Printf("vm%d(cpu:%dm,mem:%dMi):%f\n", index, vmConfigList[index].cpu, vmConfigList[index].mem, latency)
 		updateDeployment(deploymentsClient, vmInstanceDefault)
 	}
 
@@ -179,7 +179,7 @@ func createDeployment(deploymentsClient v1.DeploymentInterface) *appsv1.Deployme
 func updateDeployment(deploymentsClient v1.DeploymentInterface, vm VmInstance) {
 	// Update Deployment
 	//prompt()
-	fmt.Println("Updating deployment...")
+	//fmt.Println("Updating deployment...")
 	//    You have two options to Update() this Deployment:
 	//
 	//    1. Modify the "deployment" variable and call: Update(deployment).
@@ -223,7 +223,7 @@ func updateDeployment(deploymentsClient v1.DeploymentInterface, vm VmInstance) {
 	}
 	//等待更新结束
 	//time.Sleep(30 * time.Second)
-	fmt.Println("Updated deployment...")
+	//fmt.Println("Updated deployment...")
 }
 
 func listDeployment(deploymentsClient v1.DeploymentInterface) {
