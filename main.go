@@ -8,6 +8,7 @@ import (
 	v12 "k8s.io/client-go/kubernetes/typed/core/v1"
 	"os"
 	"path/filepath"
+	"strconv"
 	"time"
 
 	appsv1 "k8s.io/api/apps/v1"
@@ -56,7 +57,7 @@ func main() {
 	nodesClient := clientset.CoreV1().Nodes()
 	nodes, _ := nodesClient.Get("minikube", metav1.GetOptions{})
 	nodeAddress := nodes.Status.Addresses[0].Address
-	nodePort := string(svc.Spec.Ports[0].NodePort)
+	nodePort := strconv.Itoa(int(svc.Spec.Ports[0].NodePort))
 	url := nodeAddress + ":" + nodePort
 
 	sendRequest(url)
