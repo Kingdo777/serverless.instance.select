@@ -64,7 +64,7 @@ func runToGetData(SLO time.Duration, deploymentsClient v1.DeploymentInterface, u
 				break
 			}
 		}
-		if concurrencyIndex == len(concurrency) {
+		if concurrencyIndex < len(concurrency) {
 			//此时已经确定，最佳并发在concurrency[concurrencyIndex-1]到concurrency[concurrencyIndex]之间
 			start := concurrency[concurrencyIndex-1]
 			end := concurrency[concurrencyIndex] - 1
