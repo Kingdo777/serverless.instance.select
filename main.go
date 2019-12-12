@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"flag"
 	"fmt"
+	"k8s.io/client-go/kubernetes/typed/apps/v1"
 	"os"
 	"path/filepath"
 
@@ -43,21 +44,19 @@ func main() {
 		panic(err)
 	}
 
-	//deploymentsClient := clientset.AppsV1().Deployments(apiv1.NamespaceDefault)
+	deploymentsClient := clientset.AppsV1().Deployments(apiv1.NamespaceDefault)
 
-	create_deployment()
+	createDeployment(deploymentsClient)
 
-	update_deployment()
+	updateDeployment(deploymentsClient)
 
-	list_deploymnet()
+	listDeployment(deploymentsClient)
 
-	delete_deployment()
+	deleteDeployment(deploymentsClient)
 
 }
 
-func create_deployment() {
-
-	deploymentsClient := clientset.AppsV1().Deployments(apiv1.NamespaceDefault)
+func createDeployment(deploymentsClient v1.DeploymentInterface) {
 
 	deployment := &appsv1.Deployment{
 		ObjectMeta: metav1.ObjectMeta{
@@ -104,10 +103,7 @@ func create_deployment() {
 	fmt.Printf("Created deployment %q.\n", result.GetObjectMeta().GetName())
 }
 
-func update_deployment() {
-
-	deploymentsClient := clientset.AppsV1().Deployments(apiv1.NamespaceDefault)
-
+func updateDeployment(deploymentsClient v1.DeploymentInterface) {
 	// Update Deployment
 	prompt()
 	fmt.Println("Updating deployment...")
@@ -129,7 +125,7 @@ func update_deployment() {
 		// RetryOnConflict uses exponential backoff to avoid exhausting the apiserver
 		result, getErr := deploymentsClient.Get("demo-deployment", metav1.GetOptions{})
 		if getErr != nil {
-			panic(fmt.Errorf("Failed to get latest version of Deployment: %v", getErr))
+			panic(fmt.Errorf("failed to get latest version of Deployment: %v", getErr))
 		}
 
 		result.Spec.Replicas = int32Ptr(1) // reduce replica count
@@ -138,13 +134,12 @@ func update_deployment() {
 		return updateErr
 	})
 	if retryErr != nil {
-		panic(fmt.Errorf("Update failed: %v", retryErr))
+		panic(fmt.Errorf("update failed: %v", retryErr))
 	}
 	fmt.Println("Updated deployment...")
 }
 
-func list_deploymnet() {
-	deploymentsClient := clientset.AppsV1().Deployments(apiv1.NamespaceDefault)
+func listDeployment(deploymentsClient v1.DeploymentInterface) {
 	// List Deployments
 	prompt()
 	fmt.Printf("Listing deployments in namespace %q:\n", apiv1.NamespaceDefault)
@@ -157,8 +152,7 @@ func list_deploymnet() {
 	}
 }
 
-func delete_deployment() {
-	deploymentsClient := clientset.AppsV1().Deployments(apiv1.NamespaceDefault)
+func deleteDeployment(deploymentsClient v1.DeploymentInterface) {
 	// Delete Deployment
 	prompt()
 	fmt.Println("Deleting deployment...")
