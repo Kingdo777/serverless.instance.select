@@ -117,7 +117,7 @@ func createDeployment(deploymentsClient v1.DeploymentInterface) *appsv1.Deployme
 			Name: "instance-select",
 		},
 		Spec: appsv1.DeploymentSpec{
-			Replicas: int32Ptr(2),
+			Replicas: int32Ptr(1),
 			Selector: &metav1.LabelSelector{
 				MatchLabels: map[string]string{
 					"app": "instance-select",
@@ -141,6 +141,7 @@ func createDeployment(deploymentsClient v1.DeploymentInterface) *appsv1.Deployme
 									ContainerPort: 8080,
 								},
 							},
+							ImagePullPolicy: apiv1.PullIfNotPresent,
 							Resources: apiv1.ResourceRequirements{
 								Limits: apiv1.ResourceList{
 									apiv1.ResourceCPU:    *resource.NewMilliQuantity(125, resource.BinarySI),
