@@ -145,11 +145,11 @@ func createDeployment(deploymentsClient v1.DeploymentInterface) *appsv1.Deployme
 							Resources: apiv1.ResourceRequirements{
 								Limits: apiv1.ResourceList{
 									apiv1.ResourceCPU:    *resource.NewMilliQuantity(125, resource.BinarySI),
-									apiv1.ResourceMemory: *resource.NewQuantity(128, resource.BinarySI),
+									apiv1.ResourceMemory: *resource.NewQuantity(128, resource.DecimalSI),
 								},
 								Requests: apiv1.ResourceList{
 									apiv1.ResourceCPU:    *resource.NewMilliQuantity(125, resource.BinarySI),
-									apiv1.ResourceMemory: *resource.NewQuantity(128, resource.BinarySI),
+									apiv1.ResourceMemory: *resource.NewQuantity(128, resource.DecimalSI),
 								},
 							},
 						},
