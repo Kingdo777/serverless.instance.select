@@ -64,7 +64,7 @@ func main() {
 
 	sendRequest(url)
 
-	//updateDeployment(deploymentsClient)
+	updateDeployment(deploymentsClient)
 
 	//listDeployment(deploymentsClient)
 
@@ -219,11 +219,20 @@ func updateDeployment(deploymentsClient v1.DeploymentInterface) {
 		deployment, updateErr := deploymentsClient.Update(result)
 		if updateErr == nil {
 			for true {
-				if deployment.Status.AvailableReplicas != *deployment.Spec.Replicas {
+				if deployment.Status.AvailableReplicas == *deployment.Spec.Replicas {
 					deployment, _ = deploymentsClient.Get(deployment.Name, metav1.GetOptions{})
 					fmt.Printf("Wait All Pod Ready.\n")
 					time.Sleep(1 * time.Second)
 				} else {
+					for true {
+						if deployment.Status.AvailableReplicas != *deployment.Spec.Replicas {
+							deployment, _ = deploymentsClient.Get(deployment.Name, metav1.GetOptions{})
+							fmt.Printf("Wait All Pod Ready.\n")
+							time.Sleep(1 * time.Second)
+						} else {
+							break
+						}
+					}
 					break
 				}
 			}
