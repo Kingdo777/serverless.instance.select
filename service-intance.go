@@ -42,7 +42,7 @@ func runToGetData(SLO time.Duration, deploymentsClient v1.DeploymentInterface, u
 		concurrencyIndex := 0
 		for conc = concurrency[concurrencyIndex]; conc <= concurrency[len(concurrency)-1]; {
 			latency = sendRequest(url, conc, runTime)
-			fmt.Printf("request1:conc=%d and latency=%f\n", end, latency)
+			fmt.Printf("request1:conc=%d and latency=%f\n", conc, latency)
 			if latency < SecondSLO {
 				concurrencyIndex++
 				conc = concurrency[concurrencyIndex]
@@ -74,7 +74,7 @@ func runToGetData(SLO time.Duration, deploymentsClient v1.DeploymentInterface, u
 				break
 			} else {
 				latency = sendRequest(url, conc, runTime)
-				fmt.Printf("request3:conc=%d and latency=%f\n", end, latency)
+				fmt.Printf("request3:conc=%d and latency=%f\n", conc, latency)
 				if latency < SecondSLO {
 					start = conc
 				} else {
@@ -88,6 +88,12 @@ func runToGetData(SLO time.Duration, deploymentsClient v1.DeploymentInterface, u
 		}
 		SI.instanceRunModel[vmIndex].maxConcurrency = int32(conc)
 		fmt.Printf("vm%d(cpu:%dm,mem:%dMi):bestConc=%d:latency=%f\n", vmIndex, vmConfigList[vmIndex].cpu, vmConfigList[vmIndex].mem, conc, latency)
+
+		if false {
+			//TODO
+			//这个地方要比较增加资源后，实例的响应时间时候在减小，如没有减小反而增加，那么已经没有继续测试的必要
+		}
+
 		updateDeployment(deploymentsClient, vmInstanceDefault)
 	}
 	return SI
