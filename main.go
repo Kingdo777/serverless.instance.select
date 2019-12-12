@@ -78,8 +78,8 @@ func createDeployment(deploymentsClient v1.DeploymentInterface) {
 				Spec: apiv1.PodSpec{
 					Containers: []apiv1.Container{
 						{
-							Name:  "autoscaler",
-							Image: "kingdo/autoscaler-go",
+							Name:  "autoscale",
+							Image: "kingdo/autoscale-go",
 							Ports: []apiv1.ContainerPort{
 								{
 									Name:          "http",
@@ -123,7 +123,7 @@ func updateDeployment(deploymentsClient v1.DeploymentInterface) {
 	retryErr := retry.RetryOnConflict(retry.DefaultRetry, func() error {
 		// Retrieve the latest version of Deployment before attempting update
 		// RetryOnConflict uses exponential backoff to avoid exhausting the apiserver
-		result, getErr := deploymentsClient.Get("demo-deployment", metav1.GetOptions{})
+		result, getErr := deploymentsClient.Get("instance-select", metav1.GetOptions{})
 		if getErr != nil {
 			panic(fmt.Errorf("failed to get latest version of Deployment: %v", getErr))
 		}
@@ -157,7 +157,7 @@ func deleteDeployment(deploymentsClient v1.DeploymentInterface) {
 	prompt()
 	fmt.Println("Deleting deployment...")
 	deletePolicy := metav1.DeletePropagationForeground
-	if err := deploymentsClient.Delete("demo-deployment", &metav1.DeleteOptions{
+	if err := deploymentsClient.Delete("instance-select", &metav1.DeleteOptions{
 		PropagationPolicy: &deletePolicy,
 	}); err != nil {
 		panic(err)
