@@ -42,7 +42,7 @@ func runToGetData(SLO time.Duration, deploymentsClient v1.DeploymentInterface, u
 		concurrencyIndex := 0
 		for conc = concurrency[concurrencyIndex]; conc <= concurrency[len(concurrency)-1]; {
 			latency = sendRequest(url, conc, runTime)
-			fmt.Printf("request1:conc=%d and latency=%f\n", conc, latency)
+			fmt.Printf("request1:conc=%d\n", conc)
 			if latency < SecondSLO {
 				concurrencyIndex++
 				if concurrencyIndex == len(concurrency) {
@@ -72,14 +72,14 @@ func runToGetData(SLO time.Duration, deploymentsClient v1.DeploymentInterface, u
 			for conc = (start + end) / 2; start < end; conc = (start + end) / 2 {
 				if conc == start {
 					latency = sendRequest(url, end, runTime)
-					fmt.Printf("request2:conc=%d and latency=%f\n", end, latency)
+					fmt.Printf("request2:conc=%d\n", end)
 					if latency < SecondSLO {
 						conc = end
 					}
 					break
 				} else {
 					latency = sendRequest(url, conc, runTime)
-					fmt.Printf("request3:conc=%d and latency=%f\n", conc, latency)
+					fmt.Printf("request3:conc=%d\n", conc)
 					if latency < SecondSLO {
 						start = conc
 					} else {
@@ -95,7 +95,7 @@ func runToGetData(SLO time.Duration, deploymentsClient v1.DeploymentInterface, u
 			//此时最大的并发依然满足SLO
 		}
 		SI.instanceRunModel[vmIndex].maxConcurrency = int32(conc)
-		fmt.Printf("vm%d(cpu:%dm,mem:%dMi):bestConc=%d:latency=%f\n", vmIndex, vmConfigList[vmIndex].cpu, vmConfigList[vmIndex].mem, conc, latency)
+		fmt.Printf("vm%d(cpu:%dm,mem:%dMi):bestConc=%d\n", vmIndex, vmConfigList[vmIndex].cpu, vmConfigList[vmIndex].mem, conc)
 
 		if false {
 			//TODO
