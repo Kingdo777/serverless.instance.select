@@ -60,7 +60,7 @@ func main() {
 
 	for index, vm := range vmList() {
 		updateDeployment(deploymentsClient, vm)
-		latency := sendRequest(getUrl(nodesClient, svc), 10)
+		latency := sendRequest(getUrl(nodesClient, svc), 10, 10)
 		fmt.Printf("vm%d(cpu:%dm,mem:%dMi):%f\n", index, vmConfigList[index].cpu, vmConfigList[index].mem, latency)
 		updateDeployment(deploymentsClient, vmInstanceDefault)
 	}
@@ -80,8 +80,8 @@ func getUrl(nodesClient v12.NodeInterface, svc *apiv1.Service) string {
 	return url
 }
 
-func sendRequest(url string, concurrency int) float64 {
-	latency := hey(url, concurrency, "10s")
+func sendRequest(url string, concurrency int, dur int) float64 {
+	latency := hey(url, concurrency, strconv.Itoa(dur)+"s")
 	return latency
 }
 

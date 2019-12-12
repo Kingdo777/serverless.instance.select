@@ -80,4 +80,12 @@ var (
 		}
 		return vmList
 	}
+
+	vmCost = func() [len(vmConfigList)]int {
+		vmCost := [len(vmConfigList)]int{}
+		for index := range vmConfigList {
+			vmCost[index] = index + 1
+		}
+		return vmCost
+	}
 )
