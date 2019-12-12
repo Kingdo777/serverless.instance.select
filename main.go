@@ -168,14 +168,15 @@ func createDeployment(deploymentsClient v1.DeploymentInterface) *appsv1.Deployme
 	fmt.Printf("Created deployment %q.\n", result.GetObjectMeta().GetName())
 
 	for true {
-		if deployment.Status.AvailableReplicas != *deployment.Spec.Replicas {
+		if result.Status.AvailableReplicas != *result.Spec.Replicas {
+			result, _ = deploymentsClient.Get(result.Name, metav1.GetOptions{})
 			fmt.Printf("Wait All Pod Ready.\n")
 			time.Sleep(1 * time.Second)
 		} else {
 			break
 		}
 	}
-	return deployment
+	return result
 }
 
 func updateDeployment(deploymentsClient v1.DeploymentInterface) {
@@ -210,6 +211,7 @@ func updateDeployment(deploymentsClient v1.DeploymentInterface) {
 		if updateErr == nil {
 			for true {
 				if deployment.Status.AvailableReplicas != *deployment.Spec.Replicas {
+					deployment, _ = deploymentsClient.Get(deployment.Name, metav1.GetOptions{})
 					fmt.Printf("Wait All Pod Ready.\n")
 					time.Sleep(1 * time.Second)
 				} else {
