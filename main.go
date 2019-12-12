@@ -76,9 +76,13 @@ func sendRequest(url string) (latency float64) {
 }
 
 func createService(serviceClient v12.ServiceInterface, deployment *appsv1.Deployment) *apiv1.Service {
+	svc, err := serviceClient.Get("instance-select", metav1.GetOptions{})
+	if err == nil {
+		return svc
+	}
 	// Create a Service named "my-service" that targets "pod-group":"my-pod-group"
 	port := int32(8080)
-	svc, err := serviceClient.Create(&apiv1.Service{
+	svc, err = serviceClient.Create(&apiv1.Service{
 		ObjectMeta: metav1.ObjectMeta{
 			Name: "instance-select",
 		},
