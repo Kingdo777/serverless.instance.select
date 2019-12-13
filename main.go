@@ -88,10 +88,20 @@ func getUrl(nodesClient v12.NodeInterface, svc *apiv1.Service) string {
 	node := nodeList.Items[0]
 	var address string
 	for _, nodeAddress := range node.Status.Addresses {
+		//EKS需要打开端口转发
 		if nodeAddress.Type == apiv1.NodeExternalIP {
 			address = "http://" + nodeAddress.Address
 		}
 	}
+	if address == "http://" {
+		//没有外部IP使用内部
+		for _, nodeAddress := range node.Status.Addresses {
+			if nodeAddress.Type == apiv1.NodeInternalIP {
+				address = "http://" + nodeAddress.Address
+			}
+		}
+	}
+
 	if node.Name == "minikube" {
 		address = "http://192.168.99.100" //minikube的问题，nodeport没办法直接访问
 	}
@@ -117,8 +127,8 @@ func createService(serviceClient v12.ServiceInterface, deployment *appsv1.Deploy
 			Name: "instance-select",
 		},
 		Spec: apiv1.ServiceSpec{
-			//Type:     apiv1.ServiceTypeNodePort,
-			Type:     apiv1.ServiceTypeLoadBalancer,
+			Type: apiv1.ServiceTypeNodePort,
+			//Type:     apiv1.ServiceTypeLoadBalancer,
 			Selector: deployment.Labels,
 			Ports: []apiv1.ServicePort{
 				{
