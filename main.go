@@ -130,7 +130,7 @@ func createService(serviceClient v12.ServiceInterface, deployment *appsv1.Deploy
 		Spec: apiv1.ServiceSpec{
 			Type: apiv1.ServiceTypeNodePort,
 			//Type:     apiv1.ServiceTypeLoadBalancer,
-			Selector: deployment.Labels,
+			Selector: deployment.Spec.Selector.MatchLabels,
 			Ports: []apiv1.ServicePort{
 				{
 					Port: port,
