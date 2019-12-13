@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"k8s.io/client-go/kubernetes/typed/apps/v1"
 	"math"
+	"strconv"
 	"time"
 )
 
@@ -31,7 +32,7 @@ func runToGetData(SLO time.Duration, deploymentsClient v1.DeploymentInterface, u
 			latency = sendRequest(url, conc, runTime)
 			fmt.Printf("request1:conc=%d and latency=%f\n", conc, latency)
 			if latency < SecondSLO {
-				makeTrainData(conc, latency, TrainDataFilePath+".vm"+string(vmIndex))
+				makeTrainData(conc, latency, TrainDataFilePath+".vm"+strconv.Itoa(vmIndex))
 				concurrencyIndex++
 				if concurrencyIndex == len(concurrency) {
 					//此时最大的并发依然满足SLO
@@ -66,7 +67,7 @@ func runToGetData(SLO time.Duration, deploymentsClient v1.DeploymentInterface, u
 						latency = sendRequest(url, end, runTime)
 						fmt.Printf("request2:conc=%d and latency=%f\n", end, latency)
 						if latency < SecondSLO {
-							makeTrainData(conc, latency, TrainDataFilePath+".vm"+string(vmIndex))
+							makeTrainData(conc, latency, TrainDataFilePath+".vm"+strconv.Itoa(vmIndex))
 							conc = end
 						}
 						break
@@ -74,7 +75,7 @@ func runToGetData(SLO time.Duration, deploymentsClient v1.DeploymentInterface, u
 						latency = sendRequest(url, conc, runTime)
 						fmt.Printf("request3:conc=%d and latency=%f\n", conc, latency)
 						if latency < SecondSLO {
-							makeTrainData(conc, latency, TrainDataFilePath+".vm"+string(vmIndex))
+							makeTrainData(conc, latency, TrainDataFilePath+".vm"+strconv.Itoa(vmIndex))
 							start = conc
 						} else {
 							if conc == end {
