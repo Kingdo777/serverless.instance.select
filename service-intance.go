@@ -93,7 +93,7 @@ func runToGetData(SLO time.Duration, deploymentsClient v1.DeploymentInterface, u
 	return SI
 }
 
-func compeleteSI(SI ServiceInstance) {
+func completeSI(SI ServiceInstance) {
 	makeCostPerformanceTable(SI)
 	makeconcurrencyInstance(SI)
 }

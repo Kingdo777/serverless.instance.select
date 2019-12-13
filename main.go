@@ -2,7 +2,6 @@ package main
 
 import (
 	"bufio"
-	"encoding/json"
 	"flag"
 	"fmt"
 	"k8s.io/client-go/kubernetes/typed/apps/v1"
@@ -60,9 +59,15 @@ func main() {
 	//fmt.Printf("%f", latency)
 
 	SI := runToGetData(30, deploymentsClient, getUrl(nodesClient, svc))
-	compeleteSI(SI)
-	val, _ := json.Marshal(SI)
-	fmt.Println(string(val))
+	completeSI(SI)
+	for vmIndex := 1; vmIndex < len(vmConfigList); vmIndex++ {
+		fmt.Printf("vm%d:maxConc--->%d\n", vmIndex, SI.instanceRunModel[vmIndex].maxConcurrency)
+	}
+	for concIndex := 0; concIndex < len(concurrency); concIndex++ {
+		fmt.Printf("conc %d:bestVM.cpu--->%d\n", concIndex, SI.concurrencyInstance[concIndex].cpu)
+	}
+	//val, _ := json.Marshal(SI)
+	//fmt.Println(string(val))
 
 	//for index, vm := range vmList() {
 	//	updateDeployment(deploymentsClient, vm)
