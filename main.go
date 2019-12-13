@@ -118,13 +118,9 @@ func sendRequest(url string, concurrency int, dur int) float64 {
 }
 
 func createService(serviceClient v12.ServiceInterface, deployment *appsv1.Deployment) *apiv1.Service {
-	svc, err := serviceClient.Get(deployment.Name, metav1.GetOptions{})
-	if err != nil {
-		panic(err)
-	}
 	// Create a Service named "my-service" that targets "pod-group":"my-pod-group"
 	port := int32(deployment.Spec.Template.Spec.Containers[0].Ports[0].ContainerPort)
-	svc, err = serviceClient.Create(&apiv1.Service{
+	svc, err := serviceClient.Create(&apiv1.Service{
 		ObjectMeta: metav1.ObjectMeta{
 			Name: "instance-select",
 		},
