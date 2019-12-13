@@ -119,6 +119,13 @@ func sendRequest(url string, concurrency int, dur int) float64 {
 }
 
 func createService(serviceClient v12.ServiceInterface, deployment *appsv1.Deployment) *apiv1.Service {
+
+	//不管3721先删除一下
+	deletePolicy := metav1.DeletePropagationForeground
+	serviceClient.Delete(deployment.Name, &metav1.DeleteOptions{
+		PropagationPolicy: &deletePolicy,
+	})
+
 	// Create a Service named "my-service" that targets "pod-group":"my-pod-group"
 	port := int32(deployment.Spec.Template.Spec.Containers[0].Ports[0].ContainerPort)
 	svc, err := serviceClient.Create(&apiv1.Service{
@@ -148,6 +155,12 @@ func createService(serviceClient v12.ServiceInterface, deployment *appsv1.Deploy
 }
 
 func createDeployment(deploymentsClient v1.DeploymentInterface) *appsv1.Deployment {
+
+	//不管3721先删除一下
+	deletePolicy := metav1.DeletePropagationForeground
+	deploymentsClient.Delete("instance-select", &metav1.DeleteOptions{
+		PropagationPolicy: &deletePolicy,
+	})
 
 	deployment := &appsv1.Deployment{
 		ObjectMeta: metav1.ObjectMeta{
