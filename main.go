@@ -89,7 +89,7 @@ func getUrl(nodesClient v12.NodeInterface, svc *apiv1.Service) string {
 	var address string
 	for _, nodeAddress := range node.Status.Addresses {
 		if nodeAddress.Type == apiv1.NodeExternalIP {
-			address = nodeAddress.Address
+			address = "http://" + nodeAddress.Address
 		}
 	}
 	if node.Name == "minikube" {
@@ -111,13 +111,14 @@ func createService(serviceClient v12.ServiceInterface, deployment *appsv1.Deploy
 		return svc
 	}
 	// Create a Service named "my-service" that targets "pod-group":"my-pod-group"
-	port := int32(8080)
+	port := int32(deployment.Spec.Template.Spec.Containers[0].Ports[0].ContainerPort)
 	svc, err = serviceClient.Create(&apiv1.Service{
 		ObjectMeta: metav1.ObjectMeta{
 			Name: "instance-select",
 		},
 		Spec: apiv1.ServiceSpec{
-			Type:     apiv1.ServiceTypeNodePort,
+			//Type:     apiv1.ServiceTypeNodePort,
+			Type:     apiv1.ServiceTypeLoadBalancer,
 			Selector: deployment.Labels,
 			Ports: []apiv1.ServicePort{
 				{
