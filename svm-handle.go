@@ -8,12 +8,12 @@ import (
 
 func makeTrainData(conc int, latency float64, filename string) {
 	//每执行一次，添加一次
-	fp, err := os.OpenFile(filename, os.O_APPEND|os.O_CREATE, 0777)
-	defer fp.Close()
+	fp, err := os.OpenFile(filename, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0777)
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
+	defer fp.Close()
 	fp.WriteString(fmt.Sprintf("%d %f\n", conc, latency))
 }
 
