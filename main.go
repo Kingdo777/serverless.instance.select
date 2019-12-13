@@ -61,7 +61,8 @@ func main() {
 
 	SI := runToGetData(30, deploymentsClient, getUrl(nodesClient, svc))
 	compeleteSI(SI)
-	json.Marshal(SI)
+	val, _ := json.Marshal(SI)
+	fmt.Println(string(val))
 
 	//for index, vm := range vmList() {
 	//	updateDeployment(deploymentsClient, vm)

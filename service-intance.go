@@ -7,19 +7,6 @@ import (
 	"time"
 )
 
-const (
-	RuntimeMulity = 50
-	NotBest       = float64(99999999999)
-)
-
-var (
-	concurrency = [...]int{
-		//1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024,
-		1, 2, 4, 8, 16,
-	}
-	CostPerformanceTable = [len(vmConfigList)][len(concurrency)]float64{}
-)
-
 type InstanceRunModel struct {
 	isWorked       bool
 	maxConcurrency int32

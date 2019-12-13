@@ -25,6 +25,9 @@ const (
 
 	DefaultInstanceReplicasCount = 0
 	TestInstanceReplicasCount    = 1
+
+	RuntimeMulity = 50
+	NotBest       = float64(99999999999)
 )
 
 var (
@@ -88,4 +91,12 @@ var (
 		}
 		return vmCost
 	}
+)
+
+var (
+	concurrency = [...]int{
+		//1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024,
+		1, 2, 4, 8, 16, 32, 64, 128,
+	}
+	CostPerformanceTable = [len(vmConfigList)][len(concurrency)]float64{}
 )
