@@ -52,41 +52,45 @@ func runToGetData(SLO time.Duration, deploymentsClient v1.DeploymentInterface, u
 				break
 			}
 		}
-		if concurrencyIndex < len(concurrency) {
-			//此时已经确定，最佳并发在concurrency[concurrencyIndex-1]到concurrency[concurrencyIndex]之间
-			start := concurrency[concurrencyIndex-1]
-			end := concurrency[concurrencyIndex] - 1
-			fmt.Printf("bestConc between in %d and %d\n", start, end)
-			for conc = (start + end) / 2; start < end; conc = (start + end) / 2 {
-				if conc == start {
-					latency = sendRequest(url, end, runTime)
-					fmt.Printf("request2:conc=%d and latency=%f\n", end, latency)
-					if latency < SecondSLO {
-						makeTrainData(conc, latency, TrainDataFilePath+".vm"+string(vmIndex))
-						conc = end
-					}
-					break
-				} else {
-					latency = sendRequest(url, conc, runTime)
-					fmt.Printf("request3:conc=%d and latency=%f\n", conc, latency)
-					if latency < SecondSLO {
-						makeTrainData(conc, latency, TrainDataFilePath+".vm"+string(vmIndex))
-						start = conc
-					} else {
-						if conc == end {
-							conc = start
-							break
+		if concurrencyIndex == 0 {
+			//该实例无法处理任何一个请求
+			conc = 0
+		} else {
+			if concurrencyIndex < len(concurrency) {
+				//此时已经确定，最佳并发在concurrency[concurrencyIndex-1]到concurrency[concurrencyIndex]之间
+				start := concurrency[concurrencyIndex-1]
+				end := concurrency[concurrencyIndex] - 1
+				fmt.Printf("bestConc between in %d and %d\n", start, end)
+				for conc = (start + end) / 2; start < end; conc = (start + end) / 2 {
+					if conc == start {
+						latency = sendRequest(url, end, runTime)
+						fmt.Printf("request2:conc=%d and latency=%f\n", end, latency)
+						if latency < SecondSLO {
+							makeTrainData(conc, latency, TrainDataFilePath+".vm"+string(vmIndex))
+							conc = end
 						}
-						end = conc - 1
+						break
+					} else {
+						latency = sendRequest(url, conc, runTime)
+						fmt.Printf("request3:conc=%d and latency=%f\n", conc, latency)
+						if latency < SecondSLO {
+							makeTrainData(conc, latency, TrainDataFilePath+".vm"+string(vmIndex))
+							start = conc
+						} else {
+							if conc == end {
+								conc = start
+								break
+							}
+							end = conc - 1
+						}
 					}
 				}
+			} else {
+				//此时最大的并发依然满足SLO
 			}
-		} else {
-			//此时最大的并发依然满足SLO
 		}
 		SI.instanceRunModel[vmIndex].maxConcurrency = int32(conc)
 		fmt.Printf("vm%d(cpu:%dm,mem:%dMi):bestConc=%d\n", vmIndex, vmConfigList[vmIndex].cpu, vmConfigList[vmIndex].mem, conc)
-
 		if false {
 			//TODO
 			//这个地方要比较增加资源后，实例的响应时间时候在减小，如没有减小反而增加，那么已经没有继续测试的必要
