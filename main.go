@@ -79,6 +79,7 @@ func main() {
 	//listDeployment(deploymentsClient)
 
 	deleteDeployment(deploymentsClient)
+	deleteService(serviceClient, deployment)
 
 }
 
@@ -117,9 +118,9 @@ func sendRequest(url string, concurrency int, dur int) float64 {
 }
 
 func createService(serviceClient v12.ServiceInterface, deployment *appsv1.Deployment) *apiv1.Service {
-	svc, err := serviceClient.Get("instance-select", metav1.GetOptions{})
-	if err == nil {
-		return svc
+	svc, err := serviceClient.Get(deployment.Name, metav1.GetOptions{})
+	if err != nil {
+		panic(err)
 	}
 	// Create a Service named "my-service" that targets "pod-group":"my-pod-group"
 	port := int32(deployment.Spec.Template.Spec.Containers[0].Ports[0].ContainerPort)
@@ -282,6 +283,17 @@ func deleteDeployment(deploymentsClient v1.DeploymentInterface) {
 		panic(err)
 	}
 	fmt.Println("Deleted deployment.")
+}
+
+func deleteService(serviceClient v12.ServiceInterface, deployment *appsv1.Deployment) {
+	fmt.Println("Deleting svc...")
+	deletePolicy := metav1.DeletePropagationForeground
+	if err := serviceClient.Delete(deployment.Name, &metav1.DeleteOptions{
+		PropagationPolicy: &deletePolicy,
+	}); err != nil {
+		panic(err)
+	}
+	fmt.Println("Deleted svc.")
 }
 
 func prompt() {
