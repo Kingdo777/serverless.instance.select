@@ -60,11 +60,11 @@ func main() {
 
 	SI := runToGetData(30, deploymentsClient, getUrl(nodesClient, svc))
 	completeSI(SI)
-	for vmIndex := 1; vmIndex < len(vmConfigList); vmIndex++ {
+	for vmIndex := 0; vmIndex < len(vmConfigList); vmIndex++ {
 		fmt.Printf("vm%d:maxConc--->%d\n", vmIndex, SI.instanceRunModel[vmIndex].maxConcurrency)
 	}
 	for concIndex := 0; concIndex < len(concurrency); concIndex++ {
-		fmt.Printf("conc %d:bestVM.cpu--->%d\n", concIndex, SI.concurrencyInstance[concIndex].cpu)
+		fmt.Printf("conc.%d:bestVM.cpu--->%d\n", concurrency[concIndex], SI.concurrencyInstance[concIndex].cpu)
 	}
 	//val, _ := json.Marshal(SI)
 	//fmt.Println(string(val))

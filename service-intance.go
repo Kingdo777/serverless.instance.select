@@ -103,11 +103,13 @@ func makeCostPerformanceTable(SI ServiceInstance) {
 		if SI.instanceRunModel[vmIndex].isWorked == false {
 			for concIndex := 0; concIndex < len(concurrency); concIndex++ {
 				CostPerformanceTable[vmIndex][concIndex] = NotBest
+				fmt.Printf("vmIndex.%d concIndex.%d value.%f\n", vmIndex, concIndex, CostPerformanceTable[vmIndex][concIndex])
 			}
 		} else {
 			maxConc := SI.instanceRunModel[vmIndex].maxConcurrency
 			for concIndex := 0; concIndex < len(concurrency); concIndex++ {
 				CostPerformanceTable[vmIndex][concIndex] = math.Ceil(float64(concurrency[concIndex])/float64(maxConc)) * float64(vmCost()[vmIndex])
+				fmt.Printf("vmIndex.%d concIndex.%d value.%f\n", vmIndex, concIndex, CostPerformanceTable[vmIndex][concIndex])
 			}
 		}
 	}
