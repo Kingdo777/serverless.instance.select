@@ -106,8 +106,6 @@ func runToGetData(SLO time.Duration, deploymentsClient v1.DeploymentInterface, u
 func completeSI(SI *ServiceInstance) {
 	makeCostPerformanceTable(SI)
 	makeconcurrencyInstance(SI)
-
-	time.Sleep(20 * time.Second)
 	makeModel(SI)
 }
 

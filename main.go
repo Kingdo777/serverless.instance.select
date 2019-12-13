@@ -31,6 +31,36 @@ import (
 )
 
 func main() {
+	clientset := getClientSet()
+	deploymentsClient := clientset.AppsV1().Deployments(apiv1.NamespaceDefault)
+	serviceClient := clientset.CoreV1().Services(apiv1.NamespaceDefault)
+	nodesClient := clientset.CoreV1().Nodes()
+
+	imageName := "kingdo/autoscale-go"
+
+	//创建资源
+	deployment := createDeployment(deploymentsClient, imageName)
+	svc := createService(serviceClient, deployment)
+
+	//获取核心数据结构SI，这一步主要是运行各个实例获取在不同并发下延时
+	SI := runToGetData(30, deploymentsClient, getUrl(nodesClient, svc))
+	//通过上一步的数据完善信息
+	completeSI(&SI)
+
+	//打印SI信息
+	for vmIndex := 0; vmIndex < len(vmConfigList); vmIndex++ {
+		fmt.Printf("vm%d:maxConc--->%d\n", vmIndex, SI.instanceRunModel[vmIndex].maxConcurrency)
+	}
+	for concIndex := 0; concIndex < len(concurrency); concIndex++ {
+		fmt.Printf("conc.%d:bestVM.cpu--->%d\n", concurrency[concIndex], SI.concurrencyInstance[concIndex].cpu)
+	}
+
+	//删除资源
+	deleteDeployment(deploymentsClient)
+	deleteService(serviceClient, deployment)
+}
+
+func getClientSet() *kubernetes.Clientset {
 	var kubeconfig *string
 	if home := homedir.HomeDir(); home != "" {
 		kubeconfig = flag.String("kubeconfig", filepath.Join(home, ".kube", "config"), "(optional) absolute path to the kubeconfig file")
@@ -47,40 +77,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-
-	deploymentsClient := clientset.AppsV1().Deployments(apiv1.NamespaceDefault)
-	serviceClient := clientset.CoreV1().Services(apiv1.NamespaceDefault)
-	nodesClient := clientset.CoreV1().Nodes()
-
-	deployment := createDeployment(deploymentsClient)
-	svc := createService(serviceClient, deployment)
-
-	//latency := sendRequest(getUrl(nodesClient, svc), 10)
-	//fmt.Printf("%f", latency)
-
-	SI := runToGetData(30, deploymentsClient, getUrl(nodesClient, svc))
-	completeSI(&SI)
-	for vmIndex := 0; vmIndex < len(vmConfigList); vmIndex++ {
-		fmt.Printf("vm%d:maxConc--->%d\n", vmIndex, SI.instanceRunModel[vmIndex].maxConcurrency)
-	}
-	for concIndex := 0; concIndex < len(concurrency); concIndex++ {
-		fmt.Printf("conc.%d:bestVM.cpu--->%d\n", concurrency[concIndex], SI.concurrencyInstance[concIndex].cpu)
-	}
-	//val, _ := json.Marshal(SI)
-	//fmt.Println(string(val))
-
-	//for index, vm := range vmList() {
-	//	updateDeployment(deploymentsClient, vm)
-	//	latency := sendRequest(getUrl(nodesClient, svc), 10, 10)
-	//	fmt.Printf("vm%d(cpu:%dm,mem:%dMi):%f\n", index, vmConfigList[index].cpu, vmConfigList[index].mem, latency)
-	//	updateDeployment(deploymentsClient, vmInstanceDefault)
-	//}
-
-	//listDeployment(deploymentsClient)
-
-	deleteDeployment(deploymentsClient)
-	deleteService(serviceClient, deployment)
-
+	return clientset
 }
 
 func getUrl(nodesClient v12.NodeInterface, svc *apiv1.Service) string {
@@ -158,7 +155,7 @@ func createService(serviceClient v12.ServiceInterface, deployment *appsv1.Deploy
 
 }
 
-func createDeployment(deploymentsClient v1.DeploymentInterface) *appsv1.Deployment {
+func createDeployment(deploymentsClient v1.DeploymentInterface, imageName string) *appsv1.Deployment {
 
 	//不管3721先删除一下
 	//deletePolicy := metav1.DeletePropagationForeground
@@ -187,7 +184,7 @@ func createDeployment(deploymentsClient v1.DeploymentInterface) *appsv1.Deployme
 					Containers: []apiv1.Container{
 						{
 							Name:  "autoscale",
-							Image: "kingdo/autoscale-go",
+							Image: imageName,
 							Ports: []apiv1.ContainerPort{
 								{
 									Name:          "http",
