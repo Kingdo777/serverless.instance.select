@@ -93,12 +93,12 @@ func runToGetData(SLO time.Duration, deploymentsClient v1.DeploymentInterface, u
 	return SI
 }
 
-func completeSI(SI ServiceInstance) {
+func completeSI(SI *ServiceInstance) {
 	makeCostPerformanceTable(SI)
 	makeconcurrencyInstance(SI)
 }
 
-func makeCostPerformanceTable(SI ServiceInstance) {
+func makeCostPerformanceTable(SI *ServiceInstance) {
 	for vmIndex := 0; vmIndex < len(vmConfigList); vmIndex++ {
 		if SI.instanceRunModel[vmIndex].isWorked == false {
 			for concIndex := 0; concIndex < len(concurrency); concIndex++ {
@@ -115,7 +115,7 @@ func makeCostPerformanceTable(SI ServiceInstance) {
 	}
 }
 
-func makeconcurrencyInstance(SI ServiceInstance) {
+func makeconcurrencyInstance(SI *ServiceInstance) {
 	for concIndex := 0; concIndex < len(concurrency); concIndex++ {
 		SI.concurrencyInstance[concIndex] = minVMwithConc(concIndex)
 	}

@@ -59,7 +59,7 @@ func main() {
 	//fmt.Printf("%f", latency)
 
 	SI := runToGetData(30, deploymentsClient, getUrl(nodesClient, svc))
-	completeSI(SI)
+	completeSI(&SI)
 	for vmIndex := 0; vmIndex < len(vmConfigList); vmIndex++ {
 		fmt.Printf("vm%d:maxConc--->%d\n", vmIndex, SI.instanceRunModel[vmIndex].maxConcurrency)
 	}
