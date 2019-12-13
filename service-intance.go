@@ -67,7 +67,7 @@ func runToGetData(SLO time.Duration, deploymentsClient v1.DeploymentInterface, u
 						latency = sendRequest(url, end, runTime)
 						fmt.Printf("request2:conc=%d and latency=%f\n", end, latency)
 						if latency < SecondSLO {
-							makeTrainData(conc, latency, TrainDataFilePath+".vm"+strconv.Itoa(vmIndex))
+							makeTrainData(end, latency, TrainDataFilePath+".vm"+strconv.Itoa(vmIndex))
 							conc = end
 						}
 						break
@@ -104,6 +104,15 @@ func runToGetData(SLO time.Duration, deploymentsClient v1.DeploymentInterface, u
 func completeSI(SI *ServiceInstance) {
 	makeCostPerformanceTable(SI)
 	makeconcurrencyInstance(SI)
+	makeModel(SI)
+}
+
+func makeModel(SI *ServiceInstance) {
+	for vmIndex, vm := range SI.instanceRunModel {
+		trainDataFile := svmTrain(TrainDataFilePath + ".vm" + strconv.Itoa(vmIndex))
+		modelFile := svmTrain(trainDataFile)
+		vm.model = modelFile
+	}
 }
 
 func makeCostPerformanceTable(SI *ServiceInstance) {

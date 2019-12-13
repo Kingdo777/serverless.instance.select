@@ -37,11 +37,11 @@ var (
 		{cpu: 125, mem: 128},
 		{cpu: 250, mem: 256},
 		{cpu: 375, mem: 384},
-		//{cpu: 500, mem: 512},
-		//{cpu: 625, mem: 640},
-		//{cpu: 750, mem: 768},
-		//{cpu: 875, mem: 896},
-		//{cpu: 1000, mem: 1024},
+		{cpu: 500, mem: 512},
+		{cpu: 625, mem: 640},
+		{cpu: 750, mem: 768},
+		{cpu: 875, mem: 896},
+		{cpu: 1000, mem: 1024},
 		//{cpu: 1125, mem: 1152},
 		//{cpu: 1250, mem: 1280},
 		//{cpu: 1375, mem: 1408},
@@ -98,7 +98,7 @@ var (
 var (
 	concurrency = [...]int{
 		//1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024,
-		1, 2, 4, 8, 16, 32, 64,
+		1, 2, 4, 8, 16, 32, 64, 128, 256,
 	}
 	CostPerformanceTable = [len(vmConfigList)][len(concurrency)]float64{}
 )
