@@ -42,7 +42,7 @@ var (
 	proxyAddr          = ""
 )
 
-func hey(url string, conc int, d string) float64 {
+func hey(url string, conc int, d string, ch chan float64) {
 	runtime.GOMAXPROCS(cpus)
 	num := n
 	//conc := c
@@ -126,7 +126,7 @@ func hey(url string, conc int, d string) float64 {
 		}()
 	}
 	w.Run()
-	return w.Report.GetLatency()
+	ch <- w.Report.GetLatency()
 }
 
 func crashAndExit(msg string) {

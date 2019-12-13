@@ -114,7 +114,11 @@ func getUrl(nodesClient v12.NodeInterface, svc *apiv1.Service) string {
 }
 
 func sendRequest(url string, concurrency int, dur int) float64 {
-	latency := hey(url, concurrency, strconv.Itoa(dur)+"s")
+	ch := make(chan float64)
+	go func() {
+		hey(url, concurrency, strconv.Itoa(dur)+"s", ch)
+	}()
+	latency := <-ch
 	return latency
 }
 
