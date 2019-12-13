@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"encoding/json"
 	"flag"
 	"fmt"
 	"k8s.io/client-go/kubernetes/typed/apps/v1"
@@ -60,6 +61,7 @@ func main() {
 
 	SI := runToGetData(30, deploymentsClient, getUrl(nodesClient, svc))
 	compeleteSI(SI)
+	json.Marshal(SI)
 
 	//for index, vm := range vmList() {
 	//	updateDeployment(deploymentsClient, vm)
