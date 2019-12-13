@@ -83,9 +83,13 @@ func main() {
 }
 
 func getUrl(nodesClient v12.NodeInterface, svc *apiv1.Service) string {
-	nodes, _ := nodesClient.Get("minikube", metav1.GetOptions{})
-	nodeAddress := nodes.Status.Addresses[0].Address
-	//nodeAddress = "http://192.168.99.100" //minikube的问题，nodeport没办法直接访问
+	//nodes, _ := nodesClient.Get("minikube", metav1.GetOptions{})
+	nodeList, _ := nodesClient.List(metav1.ListOptions{})
+	node := nodeList.Items[0]
+	nodeAddress := node.Status.Addresses[0].Address
+	if node.Name == "minikube" {
+		nodeAddress = "http://192.168.99.100" //minikube的问题，nodeport没办法直接访问
+	}
 	nodePort := strconv.Itoa(int(svc.Spec.Ports[0].NodePort))
 	url := nodeAddress + ":" + nodePort
 	return url
