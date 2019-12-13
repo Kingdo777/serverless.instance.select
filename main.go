@@ -107,6 +107,7 @@ func getUrl(nodesClient v12.NodeInterface, svc *apiv1.Service) string {
 	}
 	nodePort := strconv.Itoa(int(svc.Spec.Ports[0].NodePort))
 	url := address + ":" + nodePort
+	fmt.Println(url)
 	return url
 }
 
