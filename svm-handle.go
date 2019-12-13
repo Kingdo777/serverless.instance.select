@@ -14,7 +14,7 @@ func makeTrainData(conc int, latency float64, filename string) {
 		return
 	}
 	defer fp.Close()
-	fp.WriteString(fmt.Sprintf("%d %f\n", conc, latency))
+	fp.WriteString(fmt.Sprintf("%d 1:%f\n", conc, latency))
 }
 
 func svmTrain(trainDataFile string) string {
