@@ -106,20 +106,16 @@ func runToGetData(SLO time.Duration, deploymentsClient v1.DeploymentInterface, u
 func completeSI(SI *ServiceInstance) {
 	makeCostPerformanceTable(SI)
 	makeconcurrencyInstance(SI)
+
+	time.Sleep(20 * time.Second)
 	makeModel(SI)
 }
 
 func makeModel(SI *ServiceInstance) {
-	//for vmIndex, vm := range SI.instanceRunModel {
-	//	fmt.Println("Training " + TrainDataFilePath + ".vm" + strconv.Itoa(vmIndex) + " ...")
-	//	modelFile := svmTrain(TrainDataFilePath + ".vm" + strconv.Itoa(vmIndex))
-	//	vm.model = modelFile
-	//	fmt.Println("Trained ->>>> " + modelFile)
-	//}
-	for vmIndex, _ := range SI.instanceRunModel {
+	for vmIndex, vm := range SI.instanceRunModel {
 		fmt.Println("Training " + TrainDataFilePath + ".vm" + strconv.Itoa(vmIndex) + " ...")
 		modelFile := svmTrain(TrainDataFilePath + ".vm" + strconv.Itoa(vmIndex))
-		//vm.model = modelFile
+		vm.model = modelFile
 		fmt.Println("Trained ->>>> " + modelFile)
 	}
 }
