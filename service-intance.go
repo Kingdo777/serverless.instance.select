@@ -111,8 +111,7 @@ func completeSI(SI *ServiceInstance) {
 
 func makeModel(SI *ServiceInstance) {
 	for vmIndex, vm := range SI.instanceRunModel {
-		trainDataFile := svmTrain(TrainDataFilePath + ".vm" + strconv.Itoa(vmIndex))
-		modelFile := svmTrain(trainDataFile)
+		modelFile := svmTrain(TrainDataFilePath + ".vm" + strconv.Itoa(vmIndex))
 		vm.model = modelFile
 	}
 }
