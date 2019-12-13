@@ -28,6 +28,8 @@ const (
 
 	RuntimeMulity = 50
 	NotBest       = float64(99999999999)
+
+	TrainDataFilePath = "data/train"
 )
 
 var (

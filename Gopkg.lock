@@ -10,6 +10,14 @@
   version = "v1.1.1"
 
 [[projects]]
+  branch = "master"
+  digest = "1:4403f9f2f9b0b31fb50389a0edac93032505ae23fa932a4c39305074b0aed8b0"
+  name = "github.com/ewalker544/libsvm-go"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "ec8445221ede3cbf10f487bec93567465a5e3e23"
+
+[[projects]]
   digest = "1:582e25eccee928dc12416ea4c23b6dae8f3b5687730632aa1473ebebe80a2359"
   name = "github.com/gogo/protobuf"
   packages = [
@@ -398,6 +406,7 @@
   analyzer-name = "dep"
   analyzer-version = 1
   input-imports = [
+    "github.com/ewalker544/libsvm-go",
     "github.com/kingdo777/hey/requester",
     "k8s.io/api/apps/v1",
     "k8s.io/api/core/v1",
