@@ -86,12 +86,17 @@ func getUrl(nodesClient v12.NodeInterface, svc *apiv1.Service) string {
 	//nodes, _ := nodesClient.Get("minikube", metav1.GetOptions{})
 	nodeList, _ := nodesClient.List(metav1.ListOptions{})
 	node := nodeList.Items[0]
-	nodeAddress := node.Status.Addresses[0].Address
+	var address string
+	for _, nodeAddress := range node.Status.Addresses {
+		if nodeAddress.Type == apiv1.NodeExternalIP {
+			address = nodeAddress.Address
+		}
+	}
 	if node.Name == "minikube" {
-		nodeAddress = "http://192.168.99.100" //minikube的问题，nodeport没办法直接访问
+		address = "http://192.168.99.100" //minikube的问题，nodeport没办法直接访问
 	}
 	nodePort := strconv.Itoa(int(svc.Spec.Ports[0].NodePort))
-	url := nodeAddress + ":" + nodePort
+	url := address + ":" + nodePort
 	return url
 }
 
