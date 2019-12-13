@@ -107,7 +107,7 @@ func getUrl(nodesClient v12.NodeInterface, svc *apiv1.Service) string {
 		address = "http://192.168.99.100" //minikube的问题，nodeport没办法直接访问
 	}
 	nodePort := strconv.Itoa(int(svc.Spec.Ports[0].NodePort))
-	url := address + ":" + nodePort + "?prime=10000"
+	url := address + ":" + nodePort + "?prime=10"
 	fmt.Println(url)
 	return url
 }

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"k8s.io/client-go/kubernetes/typed/apps/v1"
 	"math"
+	"os"
 	"strconv"
 	"time"
 )
@@ -23,6 +24,7 @@ type ServiceInstance struct {
 func runToGetData(SLO time.Duration, deploymentsClient v1.DeploymentInterface, url string) (SI ServiceInstance) {
 	SecondSLO := float64(SLO) / 1000
 	runTime := int(math.Ceil(SecondSLO * RuntimeMulity))
+	_ := os.Remove("data/*")
 	for vmIndex, vm := range vmList() {
 		updateDeployment(deploymentsClient, vm)
 		var latency float64
