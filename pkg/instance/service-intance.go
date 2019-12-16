@@ -115,7 +115,7 @@ func RunToGetData(SLO time.Duration, deploymentsClient v1.DeploymentInterface, u
 }
 
 func getLatency(url string, conc int, runTime int) float64 {
-	latency, _ := strconv.ParseFloat(tool.Get(url+"?conc="+strconv.Itoa(conc)+"&duration="+strconv.Itoa(runTime)), 64)
+	latency, _ := strconv.ParseFloat(tool.Get(url+"/start?conc="+strconv.Itoa(conc)+"&duration="+strconv.Itoa(runTime)), 64)
 	return latency
 }
 

@@ -35,11 +35,12 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	runTime, _ := parseParam(r, "duration")
 	url := getUrl()
 	latency := hey.SendRequest(url, conc, runTime)
-	fmt.Fprint(w, latency)
+	//fmt.Println(latency)
+	_, _ = fmt.Fprintf(w, "%f", latency)
 }
 
 func hello(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprint(w, "hello world\n")
+	fmt.Fprint(w, "hello world kingdo.\n")
 }
 
 func main() {
@@ -59,7 +60,7 @@ func main() {
 }
 
 func getUrl() string {
-	return "localhost:8080"
+	return "http://localhost:8080"
 }
 
 func replyWithToken(token string) func(http.ResponseWriter, *http.Request) {
