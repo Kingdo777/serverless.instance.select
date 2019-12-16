@@ -7,10 +7,10 @@ import (
 )
 
 func main() {
-	clientset := k8s.GetClientSet()
-	deploymentsClient := clientset.AppsV1().Deployments(apiv1.NamespaceDefault)
-	serviceClient := clientset.CoreV1().Services(apiv1.NamespaceDefault)
-	nodesClient := clientset.CoreV1().Nodes()
+	clientSet := k8s.GetClientSet()
+	deploymentsClient := clientSet.AppsV1().Deployments(apiv1.NamespaceDefault)
+	serviceClient := clientSet.CoreV1().Services(apiv1.NamespaceDefault)
+	nodesClient := clientSet.CoreV1().Nodes()
 
 	imageName := "kingdo/autoscale-go"
 
@@ -22,9 +22,10 @@ func main() {
 	SI := instance.RunToGetData(30, deploymentsClient, k8s.GetUrl(nodesClient, svc))
 	//通过上一步的数据完善信息
 	SI.CompleteSI()
-
+	//生成预测数据文件
+	SI.MakePredicate()
 	//打印SI信息
-	instance.PrintSI(SI)
+	SI.PrintSI()
 
 	//删除资源
 	k8s.DeleteDeployment(deploymentsClient)

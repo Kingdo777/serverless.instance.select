@@ -34,12 +34,9 @@ func Train(trainDataFile string) string {
 	return modelFile
 }
 
-func Predicting(modelFile string) float64 {
+func Predicting(modelFile string, x map[int]float64) float64 {
 	// Create a model object from the model file generated from training
 	model := libSvm.NewModelFromFile(modelFile)
-
-	x := make(map[int]float64)
-	// Populate x with the test vector
 
 	predictLabel := model.Predict(x) // Predicts a float64 label given the test vector
 

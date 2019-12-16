@@ -14,9 +14,9 @@ import (
 )
 
 type RunModel struct {
-	isWorked       bool
+	IsWorked       bool
 	MaxConcurrency int32
-	model          string
+	Model          string
 }
 
 type ServiceInstance struct {
@@ -50,13 +50,13 @@ func RunToGetData(SLO time.Duration, deploymentsClient v1.DeploymentInterface, u
 					break
 				}
 				conc = config.Concurrency[concurrencyIndex]
-				SI.InstanceRunModel[vmIndex].isWorked = true
+				SI.InstanceRunModel[vmIndex].IsWorked = true
 				//暂时等于latency
 				//CostPerformanceTable[vmIndex][concurrencyIndex]=latency
 			} else {
 				if conc == 1 {
 					//一个并发都无法接受，说明该实例无法用来运行改服务
-					SI.InstanceRunModel[vmIndex].isWorked = false
+					SI.InstanceRunModel[vmIndex].IsWorked = false
 				}
 				//for i := concurrencyIndex; i < len(concurrency); i++ {
 				//	CostPerformanceTable[vmIndex][i] = NotBest
@@ -135,19 +135,19 @@ func (SI *ServiceInstance) CompleteSI() {
 
 func (SI *ServiceInstance) makeModel() {
 	for vmIndex, vm := range SI.InstanceRunModel {
-		if !vm.isWorked {
+		if !vm.IsWorked {
 			continue
 		}
 		fmt.Println("Training " + config.TrainDataFilePath + ".vm" + strconv.Itoa(vmIndex) + " ...")
 		modelFile := svm.Train(config.TrainDataFilePath + ".vm" + strconv.Itoa(vmIndex))
-		vm.model = modelFile
+		vm.Model = modelFile
 		fmt.Println("Trained ->>>> " + modelFile)
 	}
 }
 
 func (SI *ServiceInstance) makeCostPerformanceTable() {
 	for vmIndex := 0; vmIndex < len(config.VmConfigList); vmIndex++ {
-		if SI.InstanceRunModel[vmIndex].isWorked == false {
+		if SI.InstanceRunModel[vmIndex].IsWorked == false {
 			for concIndex := 0; concIndex < len(config.Concurrency); concIndex++ {
 				config.CostPerformanceTable[vmIndex][concIndex] = config.NotBest
 				fmt.Printf("vmIndex.%d concIndex.%d value.%f\n", vmIndex, concIndex, config.CostPerformanceTable[vmIndex][concIndex])
@@ -164,11 +164,11 @@ func (SI *ServiceInstance) makeCostPerformanceTable() {
 
 func (SI *ServiceInstance) makeConcurrencyInstance() {
 	for concIndex := 0; concIndex < len(config.Concurrency); concIndex++ {
-		SI.ConcurrencyInstance[concIndex] = minVMwithConc(concIndex)
+		SI.ConcurrencyInstance[concIndex] = minVMWithConc(concIndex)
 	}
 }
 
-func minVMwithConc(concIndex int) config.VmInstanceResourceCount {
+func minVMWithConc(concIndex int) config.VmInstanceResourceCount {
 	index := 0
 	for vmIndex := 1; vmIndex < len(config.VmConfigList); vmIndex++ {
 		if config.CostPerformanceTable[vmIndex][concIndex] < config.CostPerformanceTable[index][concIndex] {
