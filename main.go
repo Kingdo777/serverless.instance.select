@@ -21,7 +21,7 @@ func main() {
 	//获取核心数据结构SI，这一步主要是运行各个实例获取在不同并发下延时
 	SI := instance.RunToGetData(30, deploymentsClient, k8s.GetUrl(nodesClient, svc))
 	//通过上一步的数据完善信息
-	instance.CompleteSI(&SI)
+	SI.CompleteSI()
 
 	//打印SI信息
 	instance.PrintSI(SI)
