@@ -22,13 +22,10 @@ func (SI *ServiceInstance) MakePredicate() {
 	x := make(map[int]float64)
 	for vmIndex, vmInstance := range SI.InstanceRunModel {
 		if vmInstance.IsWorked {
-			for index := 0; int32(index) < vmInstance.MaxConcurrency; index++ {
-				for j := 0; j < len(config.TargetLatency); j++ {
-					x[1] = config.TargetLatency[j]
-					conc = svm.Predicting(vmInstance.Model, x)
-					svm.MakeTrainData(int(math.Ceil(conc)), config.TargetLatency[j], config.TrainDataFilePath+".vm"+strconv.Itoa(vmIndex)+".predicate")
-				}
-
+			for j := 0; j < len(config.TargetLatency); j++ {
+				x[0] = config.TargetLatency[j]
+				conc = svm.Predicting(vmInstance.Model, x)
+				svm.MakeTrainData(int(math.Ceil(conc)), config.TargetLatency[j], config.TrainDataFilePath+".vm"+strconv.Itoa(vmIndex)+".predicate")
 			}
 		}
 	}
