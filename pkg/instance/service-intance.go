@@ -29,6 +29,8 @@ type ServiceInstance struct {
 func RunToGetData(SLO time.Duration, deploymentsClient v1.DeploymentInterface, url string) (SI ServiceInstance) {
 	SecondSLO := float64(SLO) / 1000
 	runTime := int(math.Ceil(SecondSLO * config.RuntimeMulity))
+	SI.Init()
+
 	for vmIndex, vm := range config.VmList() {
 		_ = os.Remove(config.TrainDataFilePath + ".vm" + strconv.Itoa(vmIndex))
 		k8s.UpdateDeployment(deploymentsClient, vm)
@@ -119,13 +121,19 @@ func getLatency(url string, conc int, runTime int) float64 {
 	return latency
 }
 
-func CompleteSI(SI *ServiceInstance) {
-	makeCostPerformanceTable(SI)
-	makeconcurrencyInstance(SI)
-	makeModel(SI)
+func (SI *ServiceInstance) Init() {
+	for index := 0; index < config.LatencyMaxHeyCount; index++ {
+		SI.ConcurrencyLatency[index] = make(map[int]float64, 100)
+	}
 }
 
-func makeModel(SI *ServiceInstance) {
+func (SI *ServiceInstance) CompleteSI() {
+	SI.makeCostPerformanceTable()
+	SI.makeConcurrencyInstance()
+	SI.makeModel()
+}
+
+func (SI *ServiceInstance) makeModel() {
 	for vmIndex, vm := range SI.InstanceRunModel {
 		if !vm.isWorked {
 			continue
@@ -137,7 +145,7 @@ func makeModel(SI *ServiceInstance) {
 	}
 }
 
-func makeCostPerformanceTable(SI *ServiceInstance) {
+func (SI *ServiceInstance) makeCostPerformanceTable() {
 	for vmIndex := 0; vmIndex < len(config.VmConfigList); vmIndex++ {
 		if SI.InstanceRunModel[vmIndex].isWorked == false {
 			for concIndex := 0; concIndex < len(config.Concurrency); concIndex++ {
@@ -154,7 +162,7 @@ func makeCostPerformanceTable(SI *ServiceInstance) {
 	}
 }
 
-func makeconcurrencyInstance(SI *ServiceInstance) {
+func (SI *ServiceInstance) makeConcurrencyInstance() {
 	for concIndex := 0; concIndex < len(config.Concurrency); concIndex++ {
 		SI.ConcurrencyInstance[concIndex] = minVMwithConc(concIndex)
 	}

@@ -1,10 +1,9 @@
 package main
 
-import (
-	"fmt"
-	"github.com/Kingdo777/serverless.instance.select/pkg/tool"
-)
+type M [10]map[int]float64
 
 func main() {
-	fmt.Println(tool.Get("http://127.0.0.1:8081"))
+	var vm M
+	vm[0][0] = 10
+
 }

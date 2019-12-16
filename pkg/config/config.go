@@ -30,6 +30,9 @@ const (
 	NotBest       = float64(99999999999)
 
 	TrainDataFilePath = "data/train"
+
+	//采用二分法的策略任何等级的并发都不会超过100次
+	LatencyMaxHeyCount = 100
 )
 
 var (
