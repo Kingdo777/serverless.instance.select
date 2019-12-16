@@ -122,8 +122,8 @@ func getLatency(url string, conc int, runTime int) float64 {
 }
 
 func (SI *ServiceInstance) Init() {
-	for index := 0; index < config.LatencyMaxHeyCount; index++ {
-		SI.ConcurrencyLatency[index] = make(map[int]float64, 100)
+	for index := 0; index < len(config.VmConfigList); index++ {
+		SI.ConcurrencyLatency[index] = make(map[int]float64, config.LatencyMaxHeyCount)
 	}
 }
 
