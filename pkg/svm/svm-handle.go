@@ -19,8 +19,14 @@ func MakeTrainData(conc int, latency float64, filename string) {
 
 func Train(trainDataFile string) string {
 	param := libSvm.NewParameter() // Create a parameter object with default values
-	param.KernelType = libSvm.POLY // Use the polynomial kernel
-
+	//param.SvmType
+	param.SvmType = libSvm.EPSILON_SVR
+	param.KernelType = libSvm.RBF // Use the polynomial kernel
+	//64.0 8.0 0.03125
+	//这个参数是需要搜索调优的
+	param.C = 64.0
+	param.P = 8.0
+	param.Gamma = 0.03125
 	model := libSvm.NewModel(param) // Create a model object from the parameter attributes
 
 	// Create a problem specification from the training data and parameter attributes
