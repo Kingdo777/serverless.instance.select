@@ -18,7 +18,7 @@ func CreateService(serviceClient v12.ServiceInterface, deployment *appsv1.Deploy
 	//})
 
 	// Create a Service named "my-service" that targets "pod-group":"my-pod-group"
-	port := deployment.Spec.Template.Spec.Containers[0].Ports[0].ContainerPort
+	port := deployment.Spec.Template.Spec.Containers[1].Ports[0].ContainerPort
 	svc, err := serviceClient.Create(&apiv1.Service{
 		ObjectMeta: metav1.ObjectMeta{
 			Name: "instance-select",

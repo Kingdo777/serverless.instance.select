@@ -53,6 +53,17 @@ func CreateDeployment(deploymentsClient v1.DeploymentInterface, imageName string
 							//ImagePullPolicy: apiv1.PullIfNotPresent,
 							Resources: config.VmInstanceDefault.Res,
 						},
+						{
+							Name:  "measure",
+							Image: "kingdo/instance-measure",
+							Ports: []apiv1.ContainerPort{
+								{
+									Name:          "http",
+									Protocol:      apiv1.ProtocolTCP,
+									ContainerPort: 8081,
+								},
+							},
+						},
 					},
 				},
 			},

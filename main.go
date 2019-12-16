@@ -1,8 +1,6 @@
 package main
 
 import (
-	"fmt"
-	"github.com/Kingdo777/serverless.instance.select/pkg/config"
 	"github.com/Kingdo777/serverless.instance.select/pkg/instance"
 	"github.com/Kingdo777/serverless.instance.select/pkg/k8s"
 	apiv1 "k8s.io/api/core/v1"
@@ -26,12 +24,7 @@ func main() {
 	instance.CompleteSI(&SI)
 
 	//打印SI信息
-	for vmIndex := 0; vmIndex < len(config.VmConfigList); vmIndex++ {
-		fmt.Printf("vm%d:maxConc--->%d\n", vmIndex, SI.InstanceRunModel[vmIndex].MaxConcurrency)
-	}
-	for concIndex := 0; concIndex < len(config.Concurrency); concIndex++ {
-		fmt.Printf("conc.%d:bestVM.cpu--->%d\n", config.Concurrency[concIndex], SI.ConcurrencyInstance[concIndex].Cpu)
-	}
+	instance.PrintSI(SI)
 
 	//删除资源
 	k8s.DeleteDeployment(deploymentsClient)
